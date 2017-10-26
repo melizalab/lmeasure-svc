@@ -2,6 +2,11 @@
 # -*- mode: python -*-
 """Functions for running lmeasure command"""
 import re
+import logging
+
+log = logging.getLogger('lmeasure')   # root logger
+
+lm_cmd = "lmeasure"             # assume l-measure is on the path
 
 # the l-measure fns, in order of their identifiers
 lm_functions = (
@@ -22,31 +27,31 @@ lm_functions = (
     {'name': 'Volume', 'index': 14, 'dtype': float, 'units': 'um**3'},
     {'name': 'EucDistance', 'index': 15, 'dtype': float, 'units': 'um'},
     {'name': 'PathDistance', 'index': 16, 'dtype': float, 'units': 'um'},
-    {'name': 'Branch_Order', 'index': 17, 'dtype': int, 'units': ''},
-    {'name': 'Terminal_degree', 'index': 18, 'dtype': int, 'units': ''},
-    {'name': 'TerminalSegment', 'index': 19, 'dtype': int, 'units': ''},
-    {'name': 'Taper_1', 'index': 20, 'dtype': float, 'units': ''},
-    {'name': 'Taper_2', 'index': 21, 'dtype': float, 'units': ''},
-    {'name': 'Branch_pathlength', 'index': 22, 'dtype': float, 'units': 'um'},
-    {'name': 'Contraction', 'index': 23, 'dtype': float, 'units': ''},
-    {'name': 'Fragmentation', 'index': 24, 'dtype': float, 'units': ''},
-    {'name': 'Daughter_Ratio', 'index': 25, 'dtype': float, 'units': ''},
-    {'name': 'Parent_Daughter_Ratio', 'index': 26, 'dtype': float, 'units': ''},
-    {'name': 'Partition_asymmetry', 'index': 27, 'dtype': float, 'units': ''},
-    {'name': 'Rall_Power', 'index': 28, 'dtype': float, 'units': ''},
-    {'name': 'Pk', 'index': 29, 'dtype': float, 'units': ''},
-    {'name': 'Pk_classic', 'index': 30, 'dtype': float, 'units': ''},
-    {'name': 'Pk_2', 'index': 31, 'dtype': float, 'units': ''},
-    {'name': 'Bif_ampl_local', 'index': 32, 'dtype': float, 'units': 'deg'},
-    {'name': 'Bif_ampl_remote', 'index': 33, 'dtype': float, 'units': 'deg'},
-    {'name': 'Bif_tilt_local', 'index': 34, 'dtype': float, 'units': 'deg'},
-    {'name': 'Bif_tilt_remote', 'index': 35, 'dtype': float, 'units': 'deg'},
-    {'name': 'Bif_torque_local', 'index': 36, 'dtype': float, 'units': 'deg'},
-    {'name': 'Bif_torque_remote', 'index': 37, 'dtype': float, 'units': 'eg'},
-    {'name': 'Last_parent_diam', 'index': 38, 'dtype': float, 'units': 'um'},
-    {'name': 'Diam_threshold', 'index': 39, 'dtype': float, 'units': 'um'},
-    {'name': 'HillmanThreshold', 'index': 40, 'dtype': float, 'units': 'um'},
-    {'name': 'Helix', 'index': 42, 'dtype': float, 'units': 'um'},
+    {'name': 'Branch_Order', 'index': 18, 'dtype': int, 'units': ''},
+    {'name': 'Terminal_degree', 'index': 19, 'dtype': int, 'units': ''},
+    {'name': 'TerminalSegment', 'index': 20, 'dtype': int, 'units': ''},
+    {'name': 'Taper_1', 'index': 21, 'dtype': float, 'units': ''},
+    {'name': 'Taper_2', 'index': 22, 'dtype': float, 'units': ''},
+    {'name': 'Branch_pathlength', 'index': 23, 'dtype': float, 'units': 'um'},
+    {'name': 'Contraction', 'index': 24, 'dtype': float, 'units': ''},
+    {'name': 'Fragmentation', 'index': 25, 'dtype': float, 'units': ''},
+    {'name': 'Daughter_Ratio', 'index': 26, 'dtype': float, 'units': ''},
+    {'name': 'Parent_Daughter_Ratio', 'index': 27, 'dtype': float, 'units': ''},
+    {'name': 'Partition_asymmetry', 'index': 28, 'dtype': float, 'units': ''},
+    {'name': 'Rall_Power', 'index': 29, 'dtype': float, 'units': ''},
+    {'name': 'Pk', 'index': 30, 'dtype': float, 'units': ''},
+    {'name': 'Pk_classic', 'index': 31, 'dtype': float, 'units': ''},
+    {'name': 'Pk_2', 'index': 32, 'dtype': float, 'units': ''},
+    {'name': 'Bif_ampl_local', 'index': 33, 'dtype': float, 'units': 'deg'},
+    {'name': 'Bif_ampl_remote', 'index': 34, 'dtype': float, 'units': 'deg'},
+    {'name': 'Bif_tilt_local', 'index': 35, 'dtype': float, 'units': 'deg'},
+    {'name': 'Bif_tilt_remote', 'index': 36, 'dtype': float, 'units': 'deg'},
+    {'name': 'Bif_torque_local', 'index': 37, 'dtype': float, 'units': 'deg'},
+    {'name': 'Bif_torque_remote', 'index': 38, 'dtype': float, 'units': 'eg'},
+    {'name': 'Last_parent_diam', 'index': 39, 'dtype': float, 'units': 'um'},
+    {'name': 'Diam_threshold', 'index': 40, 'dtype': float, 'units': 'um'},
+    {'name': 'HillmanThreshold', 'index': 41, 'dtype': float, 'units': 'um'},
+    {'name': 'Helix', 'index': 43, 'dtype': float, 'units': 'um'},
     {'name': 'Fractal_Dim', 'index': 44, 'dtype': float, 'units': ''},
 )
 
@@ -59,46 +64,49 @@ def measure_arg(name):
     return "-f{:d},0,0,10.0".format(lm_function_map[name]['index'])
 
 
-def make_command(cmd, infile, *fns):
+def make_command(infile, *fns):
     """Return shell command to perform all the measures in [fns] on infile"""
     fnargs = [measure_arg(fn) for fn in fns]
-    return [cmd] + fnargs + [infile]
+    return [lm_cmd] + fnargs + [infile]
 
 
-def run_lmeasure(cmd, data, *fns):
+def run_lmeasure(data, *fns):
     """Run lmeasure on data and return CompletedProcess
 
-    cmd: path to lmeasure commandline executable
     data: string in a format L-Measure understands. This will be stored in a temporary file in ASCII encoding.
     """
     # TODO: make this function asynchronous
     import subprocess
     from tempfile import NamedTemporaryFile
 
+    if len(fns) < 1:
+        raise ValueError("specify at least one metric")
+
     # data needs to be placed in a temporary file
-    with NamedTemporaryFile(mode="w+t", suffix=".txt", encoding="ascii", delete=False) as fp:
+    with NamedTemporaryFile(mode="w+t", suffix=".txt", encoding="ascii", delete=True) as fp:
         fp.write(data)
         fp.flush()
 
-        cmd = make_command(cmd, fp.name, *fns)
-        # TODO check for hanging process; there will be a message in stderr
-        return subprocess.run(cmd, timeout=10, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = make_command(fp.name, *fns)
+        log.debug("executing: %s", ' '.join(cmd))
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            return proc.communicate(timeout=15)
+        except TimeoutError:
+            proc.kill()
+            outs, errs = proc.communicate()
+            raise RuntimeError("command timed out")
 
 
-# error handling
-class InvalidFormat(RuntimeError):
-    message = "unsupported input format"
-    rex = re.compile(b"File type is not supported")
-
-
-lm_errs = (InvalidFormat,)
+err_regex = [{"re": re.compile(b"File type is not supported"),
+              "message": "unsupported input format"}]
 
 
 def check_errors(stderr):
     """Check stderr output of lmeasure and raise errors if there was a failure"""
-    for klass in lm_errs:
-        if klass.rex.search(stderr) is not None:
-            raise klass
+    for ee in err_regex:
+        if ee['re'].search(stderr) is not None:
+            raise RuntimeError(ee['message'])
 
 
 def parse_results(stdout):
@@ -114,8 +122,9 @@ def parse_results(stdout):
 
     """
     for line in stdout.split(b"\n"):
+        log.debug("processing line %s", line)
         fields = line.strip().split()
-        if len(fields) == 0:
+        if len(fields) != 9:
             continue
         metric = fields[1].decode("ascii")
         info = lm_function_map[metric]
@@ -143,18 +152,25 @@ def main(argv=None):
 
     args = p.parse_args()
 
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter("[%(name)s] %(message)s")
+    loglevel = logging.INFO
+    log.setLevel(loglevel)
+    ch.setLevel(loglevel)  # change
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
     if args.all:
         args.function = [x['name'] for x in lm_functions]
 
-    if len(args.function) < 1:
-        print("Error: specify at least one metric or use --all")
-        sys.exit(-1)
-
     data = sys.stdin.read()
-    proc = run_lmeasure("/io/lmeasure", data, *args.function)
+
     try:
-        check_errors(proc.stderr)
-    except RuntimeError as e:
-        print("Error: {}".format(e.message))
-    for d in parse_results(proc.stdout):
-        print(d)
+        out, err = run_lmeasure(data, *args.function)
+        log.debug("stderr: %s", err)
+        check_errors(err)
+    except Exception as e:
+        print("Error: {!s}".format(e))
+    else:
+        for d in parse_results(out):
+            print(d)

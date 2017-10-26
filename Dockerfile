@@ -11,6 +11,8 @@ RUN curl -O http://cng.gmu.edu:8080/Lm/release/linux/Lmv5.3_64bit.zip \
     && install -m 755 Lmv5.3_64bit/lmeasure /io \
     && rm -rf Lmv5.3_64bit*
 
+ENV PATH="/io:${PATH}"
+
 WORKDIR app
 
 CMD ["/bin/bash"]
