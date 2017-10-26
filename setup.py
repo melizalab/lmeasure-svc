@@ -39,6 +39,7 @@ setup(
     url="https://github.com/melizalab/lmeasure-svc",
 
     packages=find_packages(exclude=["*test*"]),
+    entry_points={'console_scripts': ['lmeas = lmeasure.command:main']},
 
     install_requires=[],
     tests_require=["nose"],
