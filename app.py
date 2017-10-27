@@ -26,7 +26,7 @@ measure_options = {
 }
 
 
-@app.route('/lmeasure', methods=["POST", "OPTIONS"])
+@app.route('/lmeasure/', methods=["POST", "OPTIONS"])
 def lmeasure():
     if request.method == "OPTIONS":
         resp = jsonify(measure_options)
@@ -56,6 +56,41 @@ def lmeasure():
             return jsonify({"error": "l-measure failed: {!s}".format(e)}), 400
         else:
             return jsonify({"error": None, "measures": measures})
+
+
+convert_options = {
+    "POST": {
+        "description": "convert reconstruction data to SWC format",
+        "parameters": {
+            "file": {
+                "type": "string",
+                "description": "ASCII-encoded reconstruction. Allowed formats: {}".format(", ".join(command.lm_formats)),
+                "required": True,
+            },
+        }
+    }
+}
+
+
+@app.route('/convert/', methods=["POST", "OPTIONS"])
+def convert():
+    if request.method == "OPTIONS":
+        resp = jsonify(convert_options)
+        resp.headers['Allow'] = "POST,OPTIONS"
+        return resp
+    elif request.method == "POST":
+        if request.is_json:
+            d = request.get_json()
+        else:
+            d = request.form
+        if "data" not in d:
+            return jsonify({"error": "no 'data' field in request"}), 400
+        try:
+            swc = command.run_convert(d["data"])
+        except RuntimeError as e:
+            return jsonify({"error": "l-measure failed: {!s}".format(e)}), 400
+        else:
+            return jsonify({"error": None, "data": swc})
 
 
 if __name__ == "__main__":
