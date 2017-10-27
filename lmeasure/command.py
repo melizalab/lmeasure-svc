@@ -8,6 +8,8 @@ log = logging.getLogger('lmeasure')   # root logger
 
 lm_cmd = "lmeasure"             # assume l-measure is on the path
 
+lm_formats = ["SWC", "Neurolucida V3", "Amaral", "Claiborne", "Eutectic", "Amira"]
+
 # the l-measure fns, in order of their identifiers
 lm_functions = (
     {'name': 'Soma_Surface', 'index': 0, 'dtype': float, 'units': 'um**2'},
@@ -57,6 +59,7 @@ lm_functions = (
 
 # map function names to numbers
 lm_function_map = {x["name"]: x for x in lm_functions}
+lm_function_names = tuple(x["name"] for x in lm_functions)
 
 
 def measure_arg(name):

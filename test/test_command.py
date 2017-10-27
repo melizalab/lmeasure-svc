@@ -29,6 +29,12 @@ def test_no_metrics_raises_error():
     out, err = command.run_lmeasure(data)
 
 
+@raises(KeyError)
+def test_bad_metric_raises_error():
+    data = "blah blah blah"
+    out, err = command.run_lmeasure(data, "amazingness")
+
+
 def test_swc_format_ok():
     with open("test/neuron.swc", "rt") as fp:
         data = fp.read()
