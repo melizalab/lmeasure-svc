@@ -184,7 +184,7 @@ def main(argv=None):
 
     ch = logging.StreamHandler()
     formatter = logging.Formatter("[%(name)s] %(message)s")
-    loglevel = logging.INFO
+    loglevel = logging.DEBUG
     log.setLevel(loglevel)
     ch.setLevel(loglevel)  # change
     ch.setFormatter(formatter)

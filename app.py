@@ -45,9 +45,11 @@ def lmeasure():
             metrics = (d["metrics"],)
         elif isinstance(d["metrics"], list):
             metrics = d["metrics"]
-
+        app.logger.debug('requested metrics: %s', metrics)
         try:
             out, err = command.run_lmeasure(d["data"], *metrics)
+            app.logger.debug('stdout: %s', out)
+            app.logger.debug('stderr: %s', err)
             command.check_errors(err)
             measures = [d for d in command.parse_results(out)]
         except KeyError as e:

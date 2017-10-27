@@ -13,6 +13,9 @@ RUN curl -O http://cng.gmu.edu:8080/Lm/release/linux/Lmv5.3_64bit.zip \
 
 ENV PATH="/io:${PATH}"
 
-WORKDIR app
+ADD . /app
+WORKDIR /app
+EXPOSE 5000
+RUN pip install -r requirements.txt
 
-CMD ["/bin/bash"]
+CMD ["python", "app.py"]

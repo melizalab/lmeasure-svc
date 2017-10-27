@@ -1,0 +1,15 @@
+version: "3"
+services:
+  lmeasure:
+    image: dmeliza/lmeasure-svc
+    command: gunicorn --bind 0.0.0.0:5000 app:app
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "5000:5000"
