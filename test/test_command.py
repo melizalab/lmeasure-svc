@@ -58,3 +58,16 @@ def test_metric_names_match_list():
         command.check_errors(err)
         result = tuple(command.parse_results(out))
         assert_sequence_equal([x['metric'] for x in result], lm_metrics)
+
+
+def test_neurolucida_format_convert():
+    with open("test/neurolucida.asc", "rt") as fp:
+        data = fp.read()
+        out, err = command.run_lmeasure(data, *lm_metrics)
+        command.check_errors(err)
+
+        swc = command.run_convert(data)
+        out, err = command.run_lmeasure(swc, *lm_metrics)
+        command.check_errors(err)
+
+        # results are NOT the same, but that's l-measure's fault

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- mode: python -*-
 """Functions for running lmeasure command"""
+import os
 import re
 import logging
 
@@ -99,6 +100,32 @@ def run_lmeasure(data, *fns):
             proc.kill()
             outs, errs = proc.communicate()
             raise RuntimeError("command timed out")
+
+
+def run_convert(data):
+    """Run lmeasure to convert data to SWC format"""
+    import subprocess
+    from tempfile import TemporaryDirectory
+
+    # data needs to be placed in a temporary file
+    with TemporaryDirectory() as tmpdir:
+        tmpfile = os.path.join(tmpdir, "input.txt")
+        with open(tmpfile, "w+t", encoding="ascii") as fp:
+            fp.write(data)
+            fp.flush()
+            cmd = [lm_cmd, "-p", tmpfile]
+            log.debug("executing: %s", ' '.join(cmd))
+            proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+            try:
+                out, errs = proc.communicate(timeout=15)
+            except TimeoutError:
+                proc.kill()
+                outs, errs = proc.communicate()
+                raise RuntimeError("command timed out")
+            check_errors(errs)
+            outfile = tmpfile + ".swc"
+            with open(outfile, "rt", encoding="ascii") as ofp:
+                return ofp.read()
 
 
 err_regex = [{"re": re.compile(b"File type is not supported"),
