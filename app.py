@@ -23,7 +23,8 @@ def info():
         return jsonify({"error": "l-measure failed: {!s}".format(e)}), 400
     return jsonify({
         "lmeasure-version": command.get_version(),
-        "lmeasure-svc-version": __version__
+        "lmeasure-svc-version": __version__,
+        "lmeasure-svc-docs": "https://github.com/melizalab/lmeasure-svc"
     })
 
 
