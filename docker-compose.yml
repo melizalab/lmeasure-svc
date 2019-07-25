@@ -1,7 +1,7 @@
 version: "3"
 services:
   lmeasure:
-    image: dmeliza/lmeasure-svc
+    image: melizalab/lmeasure-svc
     command: gunicorn --bind 0.0.0.0:5000 app:app
     deploy:
       replicas: 2
