@@ -9,6 +9,7 @@ app = Flask(__name__)
 @app.route('/', methods=["GET"])
 def index():
     data = {
+        "info": url_for('info'),
         "lmeasure": url_for('lmeasure'),
         "convert": url_for('convert')
     }
