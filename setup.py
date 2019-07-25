@@ -3,11 +3,10 @@
 # -*- mode: python -*-
 import sys
 from setuptools import setup, find_packages
+from lmeasure import __version__
 
 if sys.hexversion < 0x02070000:
     raise RuntimeError("Python 2.7 or higher required")
-
-VERSION = '0.1.0'
 
 cls_txt = """
 Development Status :: 3 - Alpha
@@ -30,7 +29,7 @@ long_desc = """ Run L-Measure as a friendly JSON-based web app!
 
 setup(
     name='lmeasure-svc',
-    version=VERSION,
+    version=__version__,
     description=short_desc,
     long_description=long_desc,
     classifiers=[x for x in cls_txt.split("\n") if x],

@@ -1,16 +1,37 @@
 # -*- coding: utf-8 -*-
 # -*- mode: python -*-
 
-from flask import Flask, request, jsonify
-from lmeasure import command
+from flask import Flask, request, jsonify, url_for
+from lmeasure import command, __version__
 
 app = Flask(__name__)
+
+@app.route('/', methods=["GET"])
+def index():
+    data = {
+        "lmeasure": url_for('lmeasure'),
+        "convert": url_for('convert')
+    }
+    return jsonify(data)
+
+
+@app.route('/info/', methods=["GET"])
+def info():
+    try:
+        version = command.get_version()
+    except RuntimeError as e:
+        return jsonify({"error": "l-measure failed: {!s}".format(e)}), 400
+    return jsonify({
+        "lmeasure-version": command.get_version(),
+        "lmeasure-svc-version": __version__
+    })
+
 
 measure_options = {
     "POST": {
         "description": "compute morphometrics from neural reconstructions",
         "parameters": {
-            "file": {
+            "data": {
                 "type": "string",
                 "description": "ASCII-encoded reconstruction. Allowed formats: {}".format(", ".join(command.lm_formats)),
                 "required": True,

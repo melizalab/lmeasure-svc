@@ -9,6 +9,11 @@ log = logging.getLogger('lmeasure')   # root logger
 
 lm_cmd = "lmeasure"             # assume l-measure is on the path
 
+err_regex = [{"re": re.compile(b"File type is not supported"),
+              "message": "unsupported input format"}]
+
+ver_regex = re.compile(rb"Release ([A-Za-z0-9.]+)")
+
 lm_formats = ["SWC", "Neurolucida V3", "Amaral", "Claiborne", "Eutectic", "Amira"]
 
 # the l-measure fns, in order of their identifiers
@@ -74,6 +79,26 @@ def make_command(infile, *fns):
     return [lm_cmd] + fnargs + [infile]
 
 
+def get_version():
+    """Run lmeasure and get the version number from the output"""
+    import subprocess
+    from tempfile import NamedTemporaryFile
+    proc = subprocess.Popen(lm_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        out, stderr = proc.communicate(timeout=15)
+    except TimeoutError:
+        proc.kill()
+        outs, stderr = proc.communicate()
+        raise RuntimeError("command timed out")
+    else:
+        m = ver_regex.search(stderr.split(b'\n')[0])
+        if m is None:
+            log.debug("unable to parse version from output: %s", stderr)
+            raise RuntimeError("unable to determine version from command output")
+        else:
+            return m.group(1).decode('ascii')
+
+
 def run_lmeasure(data, *fns):
     """Run lmeasure on data and return CompletedProcess
 
@@ -128,10 +153,6 @@ def run_convert(data):
                 return ofp.read()
 
 
-err_regex = [{"re": re.compile(b"File type is not supported"),
-              "message": "unsupported input format"}]
-
-
 def check_errors(stderr):
     """Check stderr output of lmeasure and raise errors if there was a failure"""
     for ee in err_regex:
@@ -177,6 +198,7 @@ def main(argv=None):
     import argparse
 
     p = argparse.ArgumentParser(description="run lmeasure on standard input")
+    p.add_argument("--version", "-v", help="show version information", action="store_true")
     p.add_argument("--all", "-A", help="run all functions on input", action="store_true")
     p.add_argument("function", nargs="*")
 
@@ -189,6 +211,11 @@ def main(argv=None):
     ch.setLevel(loglevel)  # change
     ch.setFormatter(formatter)
     log.addHandler(ch)
+
+    if args.version:
+        version = get_version()
+        log.info("lmeasure version: %s", version)
+        return
 
     if args.all:
         args.function = [x['name'] for x in lm_functions]
