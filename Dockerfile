@@ -1,6 +1,6 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
-RUN apk --update add curl unzip
+RUN apt-get update && apt-get install -y curl unzip
 
 RUN curl -O https://gracula.psyc.virginia.edu/public/software/Lmv5.3_64bit.zip \
     && echo "2ca13774c81b13effe85b856e8ae406eeb1adba8  Lmv5.3_64bit.zip" | sha1sum -c - \
@@ -13,7 +13,7 @@ ENV PATH="/io:${PATH}"
 
 ADD . /app
 WORKDIR /app
-RUN python -m venv venv
+RUN python3 -m venv /app/venv
 RUN venv/bin/python -m pip install --upgrade pip setuptools wheel
 RUN venv/bin/python -m pip install -r requirements.txt
 

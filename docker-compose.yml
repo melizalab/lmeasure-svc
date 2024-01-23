@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: gunicorn --access-logfile - --error-logfile - --bind :5000 --workers 4 app:app
+    command: /app/venv/bin/gunicorn --access-logfile - --error-logfile - --bind :5000 --workers 4 app:app
     deploy:
       resources:
         limits:
