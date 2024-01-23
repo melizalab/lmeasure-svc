@@ -11,7 +11,7 @@ To start the service running in a container, run:
 
 If you intend to deploy the container behind an nginx proxy:
 
-    docker stack deploy -c docker-compose.yml morpho
+    docker-compose up docker-compose.yml morpho
 
 ## Using the HTTP API
 

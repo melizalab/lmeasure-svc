@@ -1,10 +1,8 @@
-FROM python:3.6-stretch
+FROM python:3.11-alpine
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    unzip
+RUN apk --update add curl unzip
 
-RUN curl -O http://cng.gmu.edu:8080/Lm/release/linux/Lmv5.3_64bit.zip \
+RUN curl -O https://gracula.psyc.virginia.edu/public/software/Lmv5.3_64bit.zip \
     && echo "2ca13774c81b13effe85b856e8ae406eeb1adba8  Lmv5.3_64bit.zip" | sha1sum -c - \
     && unzip Lmv5.3_64bit.zip \
     && mkdir -p /io \
@@ -15,9 +13,10 @@ ENV PATH="/io:${PATH}"
 
 ADD . /app
 WORKDIR /app
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN python -m venv venv
+RUN venv/bin/python -m pip install --upgrade pip setuptools wheel
+RUN venv/bin/python -m pip install -r requirements.txt
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["venv/bin/python", "app.py"]
