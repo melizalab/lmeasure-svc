@@ -11,29 +11,29 @@ To start the service running in a container, run:
 
 If you intend to deploy the container behind an nginx proxy:
 
-    docker-compose up docker-compose.yml morpho
+    docker-compose up docker-compose.yml
 
 ## Using the HTTP API
 
 Assuming you have [httpie](https://httpie.org/) installed; use curl instead if you prefer.
 
-Get a list of endpoints:
+To get a list of endpoints:
 
     http GET http://localhost:5000/
 
-Get a list of supported metrics:
+To get a list of supported metrics:
 
     http OPTIONS http://localhost:5000/lmeasure/
 
-Compute all the supported measures from `file.DAT`
+To compute all the supported measures from `file.DAT`
 
-    http POST https://gracula.psyc.virginia.edu/morpho/lmeasure/ data=@file.DAT
+    http POST http://localhost:5000/lmeasure/ data=@file.DAT
 
-You can restrict the output to specific measures like so:
+To compute specific measures:
 
-    http POST https://gracula.psyc.virginia.edu/morpho/lmeasure/ data=@file.DAT metrics:='["Fractal_Dim"]'
+    http POST http://localhost:5000/lmeasure/ data=@file.DAT metrics:='["Fractal_Dim"]'
 
-Convert Neurolucide or other file formats to SWC. You don't have to do this before computing measures; it's just for convenience.
+To convert Neurolucida or other file formats to SWC (you don't have to do this before computing measures; it's just for convenience).
 
     http POST http://localhost:5000/convert/ data=@file.DAT
 
